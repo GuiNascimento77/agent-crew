@@ -1,0 +1,68 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "agent-crew"
+version = "0.1.0"
+description = "Time de agentes de IA (pesquisa, análise, redação e revisão) orquestrado com LangGraph + Pydantic AI, com API FastAPI e CLI."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Seu Nome", email = "voce@exemplo.com" }]
+keywords = ["ai-agents", "langgraph", "pydantic-ai", "llm", "multi-agent", "fastapi"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+]
+dependencies = [
+  "langgraph>=1.0",
+  "pydantic-ai>=2.0",
+  "pydantic>=2.9",
+  "pydantic-settings>=2.5",
+  "fastapi>=0.115",
+  "uvicorn[standard]>=0.30",
+  "typer>=0.15",
+  "rich>=13",
+  "httpx>=0.27",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pytest-asyncio>=0.24", "ruff>=0.6"]
+
+[project.scripts]
+agent-crew = "agent_crew.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/SEU-USUARIO/agent-crew"
+Issues = "https://github.com/SEU-USUARIO/agent-crew/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/agent_crew"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+  "E",   # erros de estilo do pycodestyle
+  "F",   # pyflakes: variáveis e imports não usados
+  "I",   # ordenação de imports
+  "UP",  # sugestões de modernização da sintaxe
+  "B",   # bugs prováveis (flake8-bugbear)
+  "SIM", # simplificações possíveis
+  "C4",  # boas práticas de compreensões
+]
+ignore = [
+  "E501", # comprimento de linha: o formatador cuida disso
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Nos testes, docstrings longas e estruturas repetidas são aceitáveis.
+"tests/*" = ["SIM117"]

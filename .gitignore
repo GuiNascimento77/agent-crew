@@ -1,0 +1,33 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# --- Ambientes virtuais ---
+.venv/
+venv/
+env/
+
+# --- Secrets (NUNCA subir isso pro GitHub) ---
+.env
+.env.local
+*.key
+
+# --- Ferramentas ---
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# --- Saídas geradas ---
+output/
+*.log
+
+# --- Sistema operacional / editor ---
+.DS_Store
+.idea/
+.vscode/
