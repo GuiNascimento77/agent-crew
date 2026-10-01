@@ -8,7 +8,7 @@ Quatro agentes com papéis diferentes trabalham em sequência, com um ciclo de
 revisão de qualidade, para transformar uma pergunta em um texto revisado e
 com fontes.
 
-[![tests](https://github.com/SEU-USUARIO/agent-crew/actions/workflows/ci.yml/badge.svg)](https://github.com/SEU-USUARIO/agent-crew/actions/workflows/ci.yml)
+[![tests](https://github.com/GuiNascimento77/agent-crew/actions/workflows/ci.yml/badge.svg)](https://github.com/GuiNascimento77/agent-crew/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
@@ -105,7 +105,7 @@ Requisitos: **Python 3.11 ou superior** e `git`.
 
 ```bash
 # 1. Clone o repositório
-git clone https://github.com/SEU-USUARIO/agent-crew.git
+git clone https://github.com/GuiNascimento77/agent-crew.git
 cd agent-crew
 
 # 2. Crie e ative um ambiente virtual (isola as bibliotecas do projeto)

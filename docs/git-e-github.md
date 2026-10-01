@@ -126,7 +126,7 @@ usar na sua conta — e a conta é sua.
 ### Forma B — O repositório já existe no GitHub e você quer copiar
 
 ```bash
-git clone https://github.com/SEU-USUARIO/agent-crew.git
+git clone https://github.com/GuiNascimento77/agent-crew.git
 cd agent-crew
 ```
 
@@ -135,7 +135,7 @@ cd agent-crew
 Crie o repositório vazio no site, depois:
 
 ```bash
-git clone https://github.com/SEU-USUARIO/agent-crew.git
+git clone https://github.com/GuiNascimento77/agent-crew.git
 cd agent-crew
 # ... crie seus arquivos ...
 git add .
@@ -167,7 +167,7 @@ O GitHub vai mostrar exatamente estes comandos na página do repositório novo:
 
 ```bash
 # Apelida o endereço do repositório remoto de "origin"
-git remote add origin https://github.com/SEU-USUARIO/agent-crew.git
+git remote add origin https://github.com/GuiNascimento77/agent-crew.git
 
 # Renomeia sua branch para "main" (padrão do GitHub)
 git branch -M main
@@ -262,11 +262,50 @@ Se você configurou `credential.helper store`, ele não pergunta de novo.
 > coloque em arquivo, nunca comite, nunca cole em chat ou print de tela.
 > Vazou? Volte em Settings e revogue na hora.
 
-**Sobre "fazer o push pra você":** isso exigiria que você entregasse um
-token seu para outra pessoa (ou para um agente) usar em seu nome. Não
-recomendo — e não é necessário. Os comandos acima são sempre os mesmos, e
-depois que você faz uma vez, vira automático. Guia passo a passo é melhor
-que token na mão de terceiros.
+> **Escopo extra que este projeto precisa:** marque também **`workflow`**.
+> Sem ele o GitHub recusa o `push` do arquivo `.github/workflows/ci.yml`
+> (o dos testes automáticos). Foi por isso que o token deste projeto pediu
+> `repo` **e** `workflow`.
+
+### Autenticando o `gh` com um token (o caminho usado neste projeto)
+
+O `gh auth login --web` abre uma página e fica **esperando** você autorizar.
+Neste ambiente isso não funciona: processos em segundo plano são encerrados
+quando o agente termina de responder, então o código de dispositivo morre
+antes de você conseguir usá-lo.
+
+A saída é entregar o token direto para o `gh`, num único comando:
+
+```bash
+# gh lê o token da variável de ambiente GH_TOKEN.
+# O "env -u GH_TOKEN" faz o token ser GRAVADO no disco (~/.config/gh/hosts.yml)
+# em vez de usado só na hora — assim os comandos seguintes já estão logados.
+printf '%s' "$GH_TOKEN" | env -u GH_TOKEN gh auth login \
+  --hostname github.com --git-protocol https --with-token
+
+# Confere quem está logado (nunca mostra o token inteiro)
+gh auth status
+
+# Mostra só o nome de usuário, útil para montar URLs
+gh api user --jq .login
+```
+
+Depois disso, criar o repositório e enviar o código é um comando só:
+
+```bash
+# --source=.  usa a pasta atual
+# --private   cria como privado (dá pra mudar depois, veja a seção 12)
+# --push      já envia os commits
+gh repo create agent-crew --private --source=. --push
+```
+
+**Sobre "fazer o push pra você":** usar um token seu é uma decisão sua — ele
+é tão poderoso quanto sua senha. Aqui o valor foi entregue por um formulário
+seguro do ambiente e gravado num arquivo com permissão restrita (`chmod 600`),
+nunca no histórico do chat. Se achar melhor, faça você mesmo os passos
+manuais: são sempre os mesmos e depois da primeira vez viram automáticos.
+Em qualquer caso, o token é **revogável a qualquer momento** em
+Settings → Developer settings → Personal access tokens.
 
 ---
 
@@ -369,7 +408,7 @@ Depois, no site do GitHub: crie o repositório `agent-crew` (público, **sem**
 README/.gitignore/license). E então:
 
 ```bash
-git remote add origin https://github.com/SEU-USUARIO/agent-crew.git
+git remote add origin https://github.com/GuiNascimento77/agent-crew.git
 git branch -M main
 git push -u origin main
 ```
@@ -457,6 +496,13 @@ gh repo create agent-crew --private --source=. --push
 Esse comando faz três coisas: cria o repositório, liga o `origin` ao
 endereço certo e faz o push da branch atual.
 
+> **Quando o Device Flow não funciona.** Ele depende de um programa ficar
+> **esperando** a sua autorização. Em ambientes que encerram processos em
+> segundo plano entre um comando e outro, o código expira antes de você
+> conseguir usá-lo. Nesse caso, use o caminho por token da **seção 7**
+> (`gh auth login --with-token`) — é um comando só e não depende de nada
+> ficar rodando.
+
 > **Vale aprender os dois caminhos.** O `git push` é o que você usará 99% das
 > vezes. O `gh` é conveniência — e é o que torna publicar de qualquer lugar
 > possível.
@@ -483,7 +529,7 @@ uma configuração de 30 segundos.
 ### Pelo terminal (com o `gh` autenticado)
 
 ```bash
-gh repo edit SEU-USUARIO/agent-crew \
+gh repo edit GuiNascimento77/agent-crew \
   --visibility public \
   --accept-visibility-change-consequences
 ```

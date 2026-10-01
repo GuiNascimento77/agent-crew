@@ -8,7 +8,7 @@ meses, quando esquecer como o projeto funciona.
 ## Preparando o ambiente
 
 ```bash
-git clone https://github.com/SEU-USUARIO/agent-crew.git
+git clone https://github.com/GuiNascimento77/agent-crew.git
 cd agent-crew
 
 python3 -m venv .venv
@@ -170,6 +170,6 @@ isso que a fachada existe.
 
 ## Dúvidas
 
-Abra uma [issue](https://github.com/SEU-USUARIO/agent-crew/issues) descrevendo
+Abra uma [issue](https://github.com/GuiNascimento77/agent-crew/issues) descrevendo
 o que tentou e o que aconteceu. Inclua o erro completo e os passos para
 reproduzir — isso ajuda a te ajudar.
