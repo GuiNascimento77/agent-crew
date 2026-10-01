@@ -379,6 +379,144 @@ testes, documentação e licença.
 
 ---
 
+## 11. Publicar sem ter o projeto na sua máquina (código de dispositivo)
+
+O caminho normal é: você tem o projeto no seu computador, roda `git push` e
+digita seu token. Mas existe outra forma, útil quando o projeto está em outro
+lugar (um servidor, uma máquina na nuvem, um ambiente de desenvolvimento
+remoto).
+
+Essa forma se chama **Device Flow** (fluxo de código de dispositivo). A ideia:
+
+```
+1. O programa pede autorização ao GitHub e recebe um código curto
+   → "First copy your one-time code: ED7F-1088"
+
+2. Você abre https://github.com/login/device no SEU navegador (já logado
+   na sua conta) e digita esse código
+
+3. O GitHub te mostra exatamente o que está pedindo permissão:
+   "GitHub CLI wants to access your account — repo permissions"
+
+4. Você clica em Authorize
+
+5. O programa, que estava esperando, recebe um token temporário e passa a
+   agir em seu nome
+```
+
+### Por que isso é seguro
+
+Três coisas importantes:
+
+1. **Nenhum token seu passa por outra pessoa ou por um chat.** Você
+   autoriza diretamente no site do GitHub. Quem inicia o processo nunca vê
+   a credencial — só recebe um "sim, foi autorizado".
+2. **Você vê o que está autorizando.** O GitHub mostra a permissão pedida
+   antes de você confirmar. Se algo parecer errado, você simplesmente fecha
+   a aba e nada acontece.
+3. **É revogável a qualquer momento.** Em
+   [github.com/settings/applications](https://github.com/settings/applications)
+   você vê tudo que tem acesso à sua conta e pode cortar na hora, com um
+   clique.
+
+### O que está acontecendo nos bastidores
+
+O programa não está "hackeando" nada. Ele está fazendo exatamente o que o
+`git push` faz — só troca a etapa de autenticação:
+
+| Passo | `git push` normal | Device Flow |
+|-------|-------------------|-------------|
+| 1 | Você digita usuário + token | Programa pede um código ao GitHub |
+| 2 | Git envia o commit | Você autoriza no navegador |
+| 3 | GitHub aceita | Programa recebe o token e envia o commit |
+
+O resultado é idêntico: **os commits saem do computador e aparecem no
+GitHub**. É isso que "publicar" significa. Não existe mágica — existe uma
+credencial e uma API.
+
+### O comando, se quiser fazer você mesmo algum dia
+
+```bash
+# Instale o gh (CLI oficial do GitHub)
+sudo apt install gh          # Debian/Ubuntu
+brew install gh              # macOS
+
+# Inicie o login por código de dispositivo
+gh auth login --hostname github.com --git-protocol https --web
+
+# Confira quem está logado
+gh auth status
+```
+
+E, com o `gh` autenticado, criar e publicar um repositório em um comando:
+
+```bash
+gh repo create agent-crew --private --source=. --push
+```
+
+Esse comando faz três coisas: cria o repositório, liga o `origin` ao
+endereço certo e faz o push da branch atual.
+
+> **Vale aprender os dois caminhos.** O `git push` é o que você usará 99% das
+> vezes. O `gh` é conveniência — e é o que torna publicar de qualquer lugar
+> possível.
+
+---
+
+## 12. Tornar o repositório público depois
+
+Se você criou privado (ótimo para começar sem pressão), mudar para público é
+uma configuração de 30 segundos.
+
+### Pelo site
+
+1. Abra a página do repositório no GitHub.
+2. Clique em **Settings** (a aba do **repositório**, no topo — não a
+   engrenagem do seu perfil). Nas abas do repositório: `Code | Issues | ... | Settings`.
+3. Role até o **final** da página, onde fica a **Danger Zone** (zona de
+   perigo — tudo que é irreversível fica ali).
+4. Localize **Change repository visibility** → clique em **Change visibility**
+   → **Make public**.
+5. O GitHub pede que você **digite o nome do repositório** para confirmar.
+   É uma proteção contra cliques acidentais.
+
+### Pelo terminal (com o `gh` autenticado)
+
+```bash
+gh repo edit SEU-USUARIO/agent-crew \
+  --visibility public \
+  --accept-visibility-change-consequences
+```
+
+### Antes de tornar público, confira
+
+Tornar público expõe o **histórico inteiro** do Git — não só a versão atual
+dos arquivos, mas também todos os commits antigos.
+
+```bash
+# 1. Existe algum arquivo de segredo no histórico?
+git log --all --name-only --pretty=format: | sort -u | grep -i "\.env"
+
+# Deve aparecer apenas ".env.example".
+# Se aparecer ".env" (sem o .example), REVOGUE as chaves antes de publicar.
+
+# 2. O que exatamente está sendo rastreado hoje?
+git ls-files | head -50
+```
+
+Se uma chave apareceu no histórico algum dia, **revogue a chave no painel do
+provedor**. Apagar o arquivo no commit seguinte não basta: o valor continua
+no histórico, e quem clonar o repositório consegue ler.
+
+### Depois de publicar, vale a pena
+
+- [ ] Preencher o **About** (engrenagem ao lado de "About", no topo à direita)
+- [ ] Adicionar os **topics**: `ai-agents langgraph pydantic-ai fastapi llm multi-agent python portfolio`
+- [ ] Conferir se o **badge do CI** fica verde na página inicial
+- [ ] Fixar o repositório no seu perfil (botão **Pin** no seu perfil)
+
+---
+
 ## Cola rápida
 
 ```bash
@@ -391,4 +529,15 @@ git push                          # envia para o GitHub
 git pull                          # traz do GitHub
 git log --oneline --graph         # ver o histórico de forma bonita
 git remote -v                     # para onde este projeto está ligado?
+```
+
+Com o `gh` (CLI do GitHub) instalado e autenticado:
+
+```bash
+gh auth login                     # entrar (com código de dispositivo)
+gh auth status                    # quem está logado
+gh repo create nome --private --source=. --push   # criar e publicar
+gh repo edit USUARIO/nome --visibility public     # tornar público
+gh repo view --web                # abrir o repositório no navegador
+gh issue list                     # listar as issues abertas
 ```
