@@ -53,6 +53,10 @@ jobs:
           agent-crew version
           agent-crew run "teste de fumaça" -q
 
+      - name: Rodar os exemplos de aprendizagem
+        # Se um exemplo quebrar, a documentação está mentindo.
+        run: make examples
+
   lint:
     name: Estilo do código
     runs-on: ubuntu-latest
@@ -69,7 +73,7 @@ jobs:
         run: pip install ruff
 
       - name: Verificar problemas
-        run: ruff check src tests
+        run: ruff check src tests examples
 
       - name: Conferir a formatação
-        run: ruff format --check src tests
+        run: ruff format --check src tests examples

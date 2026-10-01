@@ -7,7 +7,7 @@ PYTHON ?= python3
 VENV   ?= .venv
 BIN    := $(VENV)/bin
 
-.PHONY: help install dev test test-verbose lint format check run serve clean
+.PHONY: help install dev test test-verbose lint format check run examples serve clean
 
 help: ## Mostra esta ajuda
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -27,18 +27,23 @@ test: ## Roda os testes
 test-verbose: ## Roda os testes mostrando cada um
 	$(BIN)/pytest -v
 
-lint: ## Verifica o estilo do código (precisa de ruff instalado)
-	$(BIN)/ruff check src tests || echo "ruff não instalado: pip install ruff"
+lint: ## Verifica o estilo do código
+	$(BIN)/ruff check src tests examples
+	$(BIN)/ruff format --check src tests examples
 
 format: ## Formata o código automaticamente
-	$(BIN)/ruff format src tests || echo "ruff não instalado: pip install ruff"
+	$(BIN)/ruff format src tests examples
 
-check: test ## Testes + estilo (use isto antes de commitar)
-	$(BIN)/ruff check src tests
-	$(BIN)/ruff format --check src tests
+check: test lint ## Testes + estilo (use isto antes de commitar)
 
 run: ## Executa o time no modo demonstração
 	$(BIN)/agent-crew run "Como funcionam agentes de IA em 2026?"
+
+examples: ## Roda todos os exemplos de aprendizagem
+	@for f in examples/0*.py; do \
+		printf "%-46s" "$$f"; \
+		$(BIN)/python "$$f" > /dev/null 2>&1 && echo "ok" || echo "FALHOU"; \
+	done
 
 serve: ## Sobe a API HTTP
 	$(BIN)/agent-crew serve

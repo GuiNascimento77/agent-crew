@@ -23,6 +23,7 @@ com fontes.
 - [O que é isso](#o-que-é-isso)
 - [Como funciona](#como-funciona)
 - [Rodando em 3 minutos (sem chave de API)](#rodando-em-3-minutos-sem-chave-de-api)
+- [Entendendo o código](#entendendo-o-código)
 - [Usando um LLM de verdade](#usando-um-llm-de-verdade)
 - [Usando a API HTTP](#usando-a-api-http)
 - [Comandos do CLI](#comandos-do-cli)
@@ -148,6 +149,49 @@ Você vai ver algo assim:
 
 O conteúdo em modo `mock` é **claramente marcado como simulado**. Ele serve
 para você provar que a orquestração funciona, não para gerar texto de verdade.
+
+---
+
+## Entendendo o código
+
+Este projeto foi escrito para ser **lido**, não só executado. Existem três
+caminhos, do mais prático ao mais profundo:
+
+**1. Rodar os exemplos** — seis scripts curtos, cada um isolando uma parte:
+
+```bash
+make examples          # roda todos de uma vez
+python examples/02_ver_o_estado.py    # veja o estado mudando, agente por agente
+python examples/03_ver_os_prompts.py  # veja o texto exato enviado para a IA
+```
+
+**2. Ler o tour guiado** — [`docs/tour-do-codigo.md`](docs/tour-do-codigo.md)
+diz em que ordem ler cada arquivo e o que observar nele, incluindo os
+conceitos de arquitetura que aparecem no caminho (injeção de dependência,
+fachada, template method).
+
+**3. Praticar** — [`docs/exercicios.md`](docs/exercicios.md) tem 10
+exercícios em ordem crescente: de "mude uma palavra no prompt" até "crie um
+agente novo e mude a topologia do grafo".
+
+O caminho de uma execução, para orientar a leitura:
+
+```
+agent-crew run "..."
+  └─ cli.py :: run()              lê a configuração
+     └─ crew.py :: stream_crew()  a fachada
+        └─ graph.py :: build_graph() + astream()
+           ├─ agents/researcher.py  → busca + LLM
+           ├─ agents/analyst.py     → LLM
+           ├─ agents/writer.py      → LLM
+           ├─ agents/reviewer.py    → LLM
+           └─ graph.py :: _route_after_review()   ← a única decisão
+                ├── END     → acabou
+                └── WRITER  → reescreve
+```
+
+O "comportamento adaptativo" do sistema inteiro são **8 linhas** em
+`graph.py`. Todo o resto é infraestrutura em volta disso.
 
 ---
 
@@ -292,6 +336,7 @@ agent-crew/
 │   ├── cli.py           # interface de linha de comando (Typer + Rich)
 │   └── api.py           # API HTTP (FastAPI)
 ├── tests/               # testes automatizados (rodam 100% offline)
+├── examples/            # 6 scripts executáveis para aprender o código
 ├── docs/                # documentação explicativa
 ├── .env.example         # modelo de configuração (copie para .env)
 └── pyproject.toml       # dependências e metadados do pacote
@@ -377,6 +422,9 @@ entrevista:
 
 | Arquivo | Conteúdo |
 |---------|----------|
+| [`examples/`](examples/) | **Comece aqui se é sua primeira vez.** 6 scripts para ver o sistema funcionando |
+| [`docs/tour-do-codigo.md`](docs/tour-do-codigo.md) | Leitura guiada: em que ordem ler cada arquivo e o que observar |
+| [`docs/exercicios.md`](docs/exercicios.md) | 10 exercícios práticos, do mais simples ao desafio aberto |
 | [`docs/como-funciona.md`](docs/como-funciona.md) | O passo a passo do fluxo, com os prompts explicados |
 | [`docs/arquitetura.md`](docs/arquitetura.md) | As decisões técnicas e os padrões usados, em detalhe |
 | [`docs/git-e-github.md`](docs/git-e-github.md) | **Guia para quem está começando**: do zero ao repositório publicado |
