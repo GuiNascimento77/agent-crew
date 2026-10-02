@@ -172,7 +172,7 @@ async def _run_and_report(request: CrewRequest, settings: Settings, *, quiet: bo
     """Executa o fluxo mostrando o progresso, e devolve o resultado final."""
     console.print()
     console.print(
-        Panel.fit(
+        Panel(
             Text(request.question, style="bold"),
             title="[bold cyan]agent-crew[/bold cyan]",
             subtitle=f"provider={settings.provider} · modelo={settings.model_name} · público={request.audience}",
